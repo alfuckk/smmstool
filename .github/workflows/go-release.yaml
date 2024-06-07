@@ -3,7 +3,7 @@ name: Go Release
 on:
   push:
     tags:
-      - 'v*.*.*'  # 触发工作流的标签
+      - 'v*.*.*'  # 触发工作流的标签格式，例如 v1.0.0
 
 jobs:
   build:
@@ -11,8 +11,8 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.20.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        goos: [linux, darwin, windows]
+        goarch: [amd64]
 
     steps:
       - name: Checkout code
@@ -21,25 +21,21 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.22
 
       - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
         run: |
-          mkdir -p build/${{ matrix.os }}
-          GOOS=${{ matrix.os == 'ubuntu-latest' && 'linux' || (matrix.os == 'macos-latest' && 'darwin' || 'windows') }}
-          GOARCH=amd64
-          OUTPUT_NAME=myapp
-          if [ "${GOOS}" = "windows" ]; then
-            OUTPUT_NAME=${OUTPUT_NAME}.exe
-          fi
-          go mod tidy
-          go build -o build/${{ matrix.os }}/${OUTPUT_NAME}
+          mkdir -p build
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/myapp-${{ matrix.goos }}-${{ matrix.goarch }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.os }}-binary
-          path: build/${{ matrix.os }}/
+          name: ${{ matrix.goos }}-${{ matrix.goarch }}-binary
+          path: build/myapp-${{ matrix.goos }}-${{ matrix.goarch }}
 
   release:
     runs-on: ubuntu-latest
@@ -49,20 +45,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Download artifacts
+      - name: Download Linux artifact
         uses: actions/download-artifact@v3
         with:
-          name: ubuntu-latest-binary
+          name: linux-amd64-binary
           path: ./build/linux
-      - name: Download artifacts
+
+      - name: Download macOS artifact
         uses: actions/download-artifact@v3
         with:
-          name: macos-latest-binary
-          path: ./build/darwin
-      - name: Download artifacts
+          name: darwin-amd64-binary
+          path: ./build/macos
+
+      - name: Download Windows artifact
         uses: actions/download-artifact@v3
         with:
-          name: windows-latest-binary
+          name: windows-amd64-binary
           path: ./build/windows
 
       - name: Create GitHub Release
@@ -77,26 +75,26 @@ jobs:
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Release Asset (Linux)
+      - name: Upload Linux Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/linux/myapp
-          asset_name: myapp-linux
+          asset_path: ./build/linux/myapp-linux-amd64
+          asset_name: myapp-linux-amd64
           asset_content_type: application/octet-stream
 
-      - name: Upload Release Asset (macOS)
+      - name: Upload macOS Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/darwin/myapp
-          asset_name: myapp-macos
+          asset_path: ./build/macos/myapp-darwin-amd64
+          asset_name: myapp-darwin-amd64
           asset_content_type: application/octet-stream
 
-      - name: Upload Release Asset (Windows)
+      - name: Upload Windows Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/windows/myapp.exe
-          asset_name: myapp-windows.exe
+          asset_path: ./build/windows/myapp-windows-amd64
+          asset_name: myapp-windows-amd64.exe
           asset_content_type: application/octet-stream
