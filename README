@@ -1,5 +1,6 @@
-# smmstool 
+#smmstool
+ 这是一个使用go编写的命令行上传sm.ms图床工具，支持拖拽路径上传图片返回图床URL，支持登录获取token，支持国外/国内网关的切换。
 
- 一个使用go编写的命令行上传sm.ms图床工具，目前支持拖拽路径上传图片返回图床URL，支持登录获取token，支持国外/国内网关的切换。
+ ```https://doc.sm.ms/``` 
 
- TODO：`https://doc.sm.ms/#api-_`,把这个接口文档对接完毕。 或者是用flutter或flyne 再写个GUI。
+ TODO： ,把这个接口文档对接完毕。 或者是用flutter或flyne 再写个GUI。

@@ -32,6 +32,7 @@ jobs:
           if [ "${GOOS}" = "windows" ]; then
             OUTPUT_NAME=${OUTPUT_NAME}.exe
           fi
+          go mod tidy
           go build -o build/${{ matrix.os }}/${OUTPUT_NAME}
 
       - name: Upload artifact
