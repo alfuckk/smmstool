@@ -28,8 +28,9 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
+          go mod tidy 
           mkdir -p build
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go mod tidy  go build -o build/myapp-${{ matrix.goos }}-${{ matrix.goarch }}
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }}  go build -o build/myapp-${{ matrix.goos }}-${{ matrix.goarch }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
