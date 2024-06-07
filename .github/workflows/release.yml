@@ -16,19 +16,19 @@ jobs:
       - name: Download Linux artifact
         uses: actions/download-artifact@v3
         with:
-          name: linux-amd64-binary
+          name: myapp-linux-amd64
           path: ./build/linux
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v3
         with:
-          name: darwin-amd64-binary
+          name: myapp-darwin-amd64
           path: ./build/macos
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v3
         with:
-          name: windows-amd64-binary
+          name: myapp-windows-amd64
           path: ./build/windows
 
       - name: Create GitHub Release
@@ -41,8 +41,7 @@ jobs:
             Release notes for ${{ github.event.workflow_run.head_commit.id }}.
           draft: false
           prerelease: false
-        env:
-            GITHUB_TOKEN: ${{ secrets.token }} 
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Linux Release Asset
         uses: actions/upload-release-asset@v1
